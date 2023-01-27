@@ -1,0 +1,101 @@
+DE Zoomcamp 2023 - Homework 1
+Q1 
+	Which tag has the following text? - Write the image ID to the file
+
+	ANS
+	--iidfile string
+	
+	CODE
+	docker build --help
+
+Q2  
+	How many python packages/modules are installed?
+	
+	ANS
+	3
+	
+	CODE
+	docker run -it --entrypoint=bash python:3.9
+	root@e59fd5a0df78:/# pip list
+	Package    Version
+	---------- -------
+	pip        22.0.4
+	setuptools 58.1.0
+	wheel      0.38.4
+	
+
+Q3
+	How many taxi trips were totally made on January 15?
+
+	ANS
+	20689
+	
+	CODE
+	
+	SELECT
+		CAST(lpep_pickup_datetime AS DATE) as "day",
+		COUNT(1)
+	FROM
+		green_taxi_data t
+	WHERE CAST(lpep_pickup_datetime AS DATE) = '2019-01-15'
+	GROUP BY
+		CAST(lpep_pickup_datetime AS DATE);
+
+
+Q4
+	Which was the day with the largest trip distance?
+	
+	ANS
+	2019-01-15
+	
+	CODE
+	
+	SELECT
+		CAST(lpep_pickup_datetime AS DATE) as "day"
+	FROM green_taxi_data
+	WHERE trip_distance =(
+			SELECT max(trip_distance)
+			FROM green_taxi_data
+			)
+
+
+Q5
+	In 2019-01-01 how many trips had 2 and 3 passengers
+	
+	ANS
+	2: 1282 ; 3: 254
+	
+	CODE
+	
+	SELECT
+		CAST(lpep_pickup_datetime AS DATE) as "day",
+		COUNT(3)
+	from 
+		green_taxi_data 
+	where 
+		CAST(lpep_pickup_datetime AS DATE) = '2019-01-01'
+		and passenger_count in('2','3')
+	group by 
+		CAST(lpep_pickup_datetime AS DATE)
+		,passenger_count
+
+Q6
+	For the passengers picked up in the Astoria Zone which was the drop up zone that had the largest tip?
+	
+	ANS
+	Long Island City/Queens Plaza
+	
+	CODE
+	SELECT
+		tip_amount,
+		CONCAT(zpu."Borough", '/', zpu."Zone") AS "pickup_loc",
+		CONCAT(zdo."Borough", '/', zdo."Zone") AS "dropoff_loc"
+	FROM
+		green_taxi_data t JOIN zones zpu
+			ON t."PULocationID" = zpu."LocationID"
+		JOIN zones zdo
+			ON t."DOLocationID" = zdo."LocationID"
+	Where zpu."Zone" = 'Astoria'
+
+	order by t.tip_amount desc
+	LIMIT 1;
